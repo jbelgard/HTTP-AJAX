@@ -4,8 +4,8 @@ Topics:
 
 * `axios` package
 * AJAX
-* Promises
-
+* Prom ises
+   
 ## Instructions
 
 1.  Run `yarn install or npm install` inside the root directory of this project1Run `yarn start or npm start` to start the server.
