@@ -1,50 +1,56 @@
 import React, { Component } from 'react';
-import './App.css';
-import Data from './data';
+import { Route } from 'react-router-dom';
+import FriendsList from './components/FriendsList';
+import FriendInput from './components/FriendInput';
 import axios from 'axios';
-import { BrowserRouter as Router, Route, Link } from 'react-router-dom';
-import AddFriendForm from './components/AddFriendForm';
+import './App.css';
 
 class App extends Component {
-  constructor () {
-    super();
-    this.state={
-      friends: []
+  constructor(props){
+    super(props);
+    this.state = {
+      friends: [],
     };
-  };
-  componentDidMount() {
-    axios
-      .get(`http://localhost:5000/friends`)
-      .then(res => {
-        this.setState({ friends: res.data });
-      })
-      .catch(err => {
-        console.log(err);
-      });
-  };
-  addFriend = newFriend => {
-    axios
-      .post(`http://localhost:5000/friends`, newFriend)
-      .then(res => {
-        this.setState({
-          friends: res.data
-        });
-      })
-      .catch(err => {
-        console.log(err);
-      });
-  };
+  }
+  componentDidMount(){
+    axios('http://localhost:5000/friends')
+      .then(res => this.setState({ friends: res.data }))
+      .catch(err => { throw new Error(err) });
+  }
+  handleUpdateList = (friends) => {
+    this.setState({
+      friends,
+    })
+  }
+  handleEditFriend = (name, age, email, id) => {
+    axios.put(`http://localhost:5000/friends/${id}`, {
+      name,
+      age: Number(age),
+      email
+    })
+      .then(res => this.setState({ friends: res.data }) )
+      .catch(err => { throw new Error(err) });
+  }
+  handleDeleteFriend = (id) => {
+    axios.delete(`http://localhost:5000/friends/${id}`)
+      .then(res => this.setState({ friends: res.data }))
+      .catch(err => { throw new Error(err)});
+  }
   render() {
     return (
-      <Router>
-        <div className='App'>
-          <Data friends={this.state.friends}/>
-          <Link to='/new-friend'><button>add Atlantian</button></Link>
-          <Route exact path='/new-friend' render={props => <AddFriendForm {...props} addFriend={this.addFriend} />}/>
-        </div>
-      </Router>
-    )
+      <div className="App">
+        <Route exact path="/" render={props => (
+          <FriendsList 
+            {...props}
+            friends={this.state.friends}
+            deleteFriend={this.handleDeleteFriend}
+            editFriend={this.handleEditFriend}
+          />
+        )} />
+        <Route path="/add" render={props => <FriendInput {...props} updateList={this.handleUpdateList} />} />
+      </div>
+    );
   }
 }
 
-export default App
+export default App;
